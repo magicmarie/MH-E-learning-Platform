@@ -13,6 +13,7 @@ gem "puma", ">= 5.0"
 gem "bcrypt", "~> 3.1.7"
 gem "jwt", "~> 2.5"
 gem "pundit"
+gem "sidekiq"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
@@ -45,6 +46,9 @@ group :development, :test do
   gem "brakeman", require: false
   gem "pry-rails"
   gem "dotenv-rails"
+  gem "letter_opener"
+  gem "letter_opener_web"
+
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
 end

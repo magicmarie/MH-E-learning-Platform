@@ -7,6 +7,10 @@ class OrganizationsController < ApplicationController
   before_action :authorize_request, only: [ :show, :update ]
   before_action :set_organization, only: [ :show, :update ]
 
+  def index
+    render json: Organization.all
+  end
+
   def show
     if @organization.nil?
 

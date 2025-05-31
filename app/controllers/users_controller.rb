@@ -30,10 +30,14 @@ class UsersController < ApplicationController
       return render json: { error: "Role '#{incoming_role}' not allowed" }, status: :unprocessable_entity
     end
 
-    user = current_user.organization.users.new(user_params.merge(role: role_int))
+    temp_password = SecureRandom.alphanumeric(8)
+    user = current_user.organization.users.new(user_params.merge(role: role_int, password: temp_password, password_confirmation: temp_password))
     authorize user
 
     if user.save
+      org_code = user.organization&.code
+      UserMailer.welcome_user(user, org_code, temp_password).now
+
       render json: user, status: :created
     else
       render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
@@ -48,6 +52,6 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    params.permit(:email, :password, :password_confirmation)
+    params.permit(:email)
   end
 end

@@ -57,6 +57,6 @@ class Admin::OrganizationsController < ApplicationController
   private
 
   def org_params
-    params.permit(:name)
+    params.permit(:name, :organization_code)
   end
 end

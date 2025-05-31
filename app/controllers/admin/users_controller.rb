@@ -40,9 +40,14 @@ class Admin::UsersController < ApplicationController
       return render json: { error: "Organization not found" }, status: :not_found
     end
 
-    user = organization.users.new(user_params.merge(role: role_int))
+    temp_password = SecureRandom.alphanumeric(8)
+    user = organization.users.new(user_params.merge(
+      role: role_int, password: temp_password, password_confirmation: temp_password))
 
     if user.save
+      org_code = user.organization&.organization_code
+      UserMailer.welcome_user(user, org_code, temp_password).deliver_now
+
       render json: user, status: :created
     else
       render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
@@ -57,6 +62,6 @@ class Admin::UsersController < ApplicationController
   end
 
   def user_params
-    params.permit(:email, :password, :password_confirmation)
+    params.permit(:email)
   end
 end

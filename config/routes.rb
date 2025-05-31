@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   post "login/security", to: "auth#verify_security"
 
   # Org Admin — manage users within their org
+  resource :organization, only: [ :show, :update ]
   resources :users, only: [ :create, :index ] do
     member do
       patch :activate # PATCH /users/:id/activate
@@ -23,7 +24,7 @@ Rails.application.routes.draw do
 
   # Global Admin — manage orgs and org_admins
   namespace :admin do
-    resources :organizations, only: [ :index, :create, :destroy ]
+    resources :organizations, only: [ :index, :create, :show, :update, :destroy ]
 
     resources :users, only: [ :create, :index ] do
       member do

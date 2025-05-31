@@ -27,7 +27,10 @@ end
 
 # Create Organizations
 3.times do |i|
-  org = Organization.create!(name: "Org #{i + 1}")
+  org = Organization.create!(
+    name: "Org #{i + 1}",
+    organization_code: "ORG#{i + 1}CODE",
+    )
 
   # Create Org Admin
   org_admin = org.users.create!(

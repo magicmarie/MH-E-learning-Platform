@@ -10,6 +10,7 @@ Rails.application.routes.draw do
   post "/login", to: "auth#login"
   post "login", to: "auth#login"
   post "login/security", to: "auth#verify_security"
+  get "/organizations/search", to: "organizations#search"
 
   # Org Admin — manage users within their org
   resource :organization, only: [ :show, :update ]

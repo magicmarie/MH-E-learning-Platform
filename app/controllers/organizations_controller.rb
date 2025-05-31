@@ -4,8 +4,8 @@ class OrganizationsController < ApplicationController
   include Authenticatable
   include Pundit
 
-  before_action :authorize_request
-  before_action :set_organization
+  before_action :authorize_request, only: [ :show, :update ]
+  before_action :set_organization, only: [ :show, :update ]
 
   def show
     if @organization.nil?
@@ -29,6 +29,21 @@ class OrganizationsController < ApplicationController
         render json: { errors: @organization.errors.full_messages }, status: :unprocessable_entity
       end
     end
+  end
+
+  def search
+    query = params[:q].to_s.strip
+
+    if query.length < 3
+      return render json: { error: "Query too short" }, status: :bad_request
+    end
+
+    matches = Organization
+      .where("LOWER(organization_code) LIKE ?", "#{query}%")
+      .select(:id, :name, :organization_code)
+      .limit(8)
+
+    render json: matches
   end
 
   private

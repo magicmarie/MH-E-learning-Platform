@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_31_165726) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_01_013318) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -19,6 +19,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_31_165726) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "organization_code"
+    t.jsonb "settings"
     t.index ["organization_code"], name: "index_organizations_on_organization_code", unique: true
   end
 
@@ -34,6 +35,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_31_165726) do
     t.datetime "deactivated_at", precision: nil
     t.string "security_question"
     t.string "security_answer_digest"
+    t.jsonb "settings"
     t.index ["active"], name: "index_users_on_active"
     t.index ["deactivated_by_id"], name: "index_users_on_deactivated_by_id"
     t.index ["organization_id"], name: "index_users_on_organization_id"

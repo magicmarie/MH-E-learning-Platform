@@ -33,9 +33,8 @@ class AuthController < ApplicationController
     if user.global_admin?
       if params[:security_answer].blank?
         return render json: {
-          message: "Security answer required",
-          security_question: user.security_question
-        }, status: :unauthorized
+          message: "MFA"
+        }, status: :partial_content
       end
 
       unless user.correct_security_answer?(params[:security_answer])

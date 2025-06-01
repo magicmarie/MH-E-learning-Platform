@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  enrollment: one
+  a_type: 1
+  score: 1.5
+  assessed_on: 2025-06-01
+
+two:
+  enrollment: two
+  a_type: 1
+  score: 1.5
+  assessed_on: 2025-06-01

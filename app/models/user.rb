@@ -4,6 +4,8 @@ class User < ApplicationRecord
 
   has_secure_password
   has_secure_password :security_answer, validations: false
+  has_many :enrollments
+  has_many :courses, through: :enrollments
 
   GLOBAL_ADMIN = 0
   ORG_ADMIN = 1

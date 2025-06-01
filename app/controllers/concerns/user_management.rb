@@ -37,10 +37,23 @@ module UserManagement
     render json: { message: "User deactivated" }
   end
 
+  def update
+    user = User.find_by(id: params[:id])
+    return render json: { error: "User not found" }, status: :not_found unless user
+
+    authorize user
+
+    if user.update(user_params)
+      render json: user, status: :ok
+    else
+      render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def user_params
-    params.permit(:email, :password, :password_confirmation, :role)
+    params.permit(:email, :role, :organization)
   end
 
   def find_user_in_scope(id)

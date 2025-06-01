@@ -25,13 +25,14 @@ Rails.application.routes.draw do
   post "/login/security", to: "auth#verify_security"
   get "/organizations/search", to: "organizations#search"
   get "/organizations", to: "organizations#index"
+  post "/password/change", to: "auth#change_password"
 
   # Org Admin — manage users within their org
   resource :organization, only: [ :show, :update ]
   # GET /organization
   # PATCH /organization
 
-  resources :users, only: [ :create, :index ] do
+  resources :users, only: [ :create, :index, :update ] do
     member do
       patch :activate # PATCH /users/:id/activate
       patch :deactivate # PATCH /users/:id/deactivate
@@ -49,7 +50,7 @@ Rails.application.routes.draw do
     # PATCH /admin/organizations/:id
     # DELETE /admin/organizations/:id
 
-    resources :users, only: [ :create, :index ] do
+    resources :users, only: [ :create, :index, :update ] do
       member do
         patch :activate # PATCH /admin/users/:id/activate
         patch :deactivate # PATCH /admin/users/:id/deactivate

@@ -31,12 +31,17 @@ class UsersController < ApplicationController
     end
 
     temp_password = SecureRandom.alphanumeric(8)
-    user = current_user.organization.users.new(user_params.merge(role: role_int, password: temp_password, password_confirmation: temp_password))
+    user = current_user.organization.users.new(user_params.merge(
+      role: role_int, password: temp_password, password_confirmation: temp_password))
     authorize user
 
     if user.save
-      org_code = user.organization&.code
-      UserMailer.welcome_user(user, org_code, temp_password).now
+      org_code = user.organization&.organization_code
+      begin
+        UserMailer.welcome_user(user, org_code, temp_password).deliver_now
+      rescue => e
+        Rails.logger.error("Failed to send welcome email to #{user.email}: #{e.message}")
+      end
 
       render json: user, status: :created
     else

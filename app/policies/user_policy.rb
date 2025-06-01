@@ -26,6 +26,10 @@ class UserPolicy < ApplicationPolicy
     activate? # same logic as activate
   end
 
+  def update?
+    activate?
+  end
+
   class Scope < ApplicationPolicy::Scope
     def resolve
       if user.global_admin?

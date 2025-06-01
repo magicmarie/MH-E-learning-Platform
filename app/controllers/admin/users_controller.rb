@@ -46,7 +46,11 @@ class Admin::UsersController < ApplicationController
 
     if user.save
       org_code = user.organization&.organization_code
-      UserMailer.welcome_user(user, org_code, temp_password).deliver_now
+      begin
+        UserMailer.welcome_user(user, org_code, temp_password).deliver_now
+      rescue => e
+        Rails.logger.error("Failed to send welcome email to #{user.email}: #{e.message}")
+      end
 
       render json: user, status: :created
     else

@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class AuthController < ApplicationController
+  include Authenticatable
+
+  before_action :authorize_request, only: [ :change_password ]
+
   def signup
     org = Organization.find(params[:organization_id])
     user = org.users.new(user_params)
@@ -63,6 +67,19 @@ class AuthController < ApplicationController
 
     token = JsonWebToken.encode(user_id: user.id)
     render json: { token: token, user: user }, status: :ok
+  end
+
+  def change_password
+    user = current_user
+    unless user.authenticate(params[:current_password])
+      return render json: { error: "Incorrect password" }, status: :unprocessable_entity
+    end
+
+    if user.update(password: params[:new_password])
+      render json: { message: "Password updated successfully" }
+    else
+      render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 
   private

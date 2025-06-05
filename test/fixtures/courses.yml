@@ -3,8 +3,8 @@
 one:
   name: MyString
   course_code: MyString
-  semester: MyString
-  month: MyString
+  semester: 1
+  month: 1
   year: 1
   user: one
   organization: one
@@ -12,8 +12,8 @@ one:
 two:
   name: MyString
   course_code: MyString
-  semester: MyString
-  month: MyString
+  semester: 1
+  month: 1
   year: 1
   user: two
   organization: two

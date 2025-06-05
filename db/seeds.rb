@@ -78,29 +78,28 @@ end
     course = Course.create!(
       name: "Course #{idx + 1} Org#{i + 1}",
       course_code: "COURSE#{i + 1}_#{idx + 1}",
-      semester: %w[Spring Summer Fall Winter].sample,
-      month: idx + 1,
+      semester: [ Course::FIRST, Course::SECOND ].sample.to_i,
+      month: rand(1..12).to_i,
       year: 2025,
       is_completed: [ true, false ].sample,
       organization: org,
       user: teacher
     )
 
-    puts "📘 Created course #{course.name} for #{teacher.email}"
+    puts "Created course #{course.name} for #{teacher.email}"
 
     # Create 2 assignments per course
     assignments = []
-    %w[Midterm Final].each_with_index do |label, a_idx|
+    (1..2).each_with_index do |x, a_idx|
       assignment = Assignment.create!(
-        name: "#{label} #{course.name}",
-        a_type: %w[exam assignment project quiz].sample,
-        max_score: 50,
+        title: "#{course.name} Assignment #{x}",
+        assignment_type: [ Assignment::QUIZ, Assignment::HOMEWORK, Assignment::EXAM, Assignment::PROJECT ].sample,
+        max_score: rand(10..100),
         deadline: Time.zone.now + (a_idx + 1).weeks,
         course: course,
-        user: teacher
       )
       assignments << assignment
-      puts "Created assignment #{assignment.name}"
+      puts "Created assignment #{assignment.title}"
     end
 
     # Enroll first 2 students to the course
@@ -115,13 +114,13 @@ end
 
       # For each assignment, create assessment per enrolled student
       assignments.each do |assignment|
-        assessment = Assessment.create!(
+        Assessment.create!(
           assignment: assignment,
           enrollment: enrollment,
           score: 0.0,
           submitted_at: nil
         )
-        puts "Added assessment for #{student.email} on #{assignment.name}"
+        puts "Added assessment for #{student.email} on #{assignment.title}"
       end
     end
   end

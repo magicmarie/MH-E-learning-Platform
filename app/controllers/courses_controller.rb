@@ -1,7 +1,13 @@
 class CoursesController < ApplicationController
+  include Authenticatable
   include Pundit
 
   before_action :set_course, only: [ :show, :update, :destroy ]
+
+  SEMESTER_MAP = {
+    "FIRST" => Course::FIRST,
+    "SECOND" => Course::SECOND
+  }.freeze
 
   def index
     authorize Course
@@ -13,7 +19,16 @@ class CoursesController < ApplicationController
   end
 
   def create
-    @course = Course.new(course_params)
+    authorize Course
+
+    incoming_semester = params[:semester]
+    semester_int = SEMESTER_MAP[incoming_semester]
+
+    if semester_int.blank?
+      return render json: { error: "Unknown semester '#{incoming_semester}'" }, status: :unprocessable_entity
+    end
+
+    @course = Course.new(course_params.merge(semester: semester_int))
 
     if @course.save
       render json: @course, status: :created
@@ -40,6 +55,6 @@ class CoursesController < ApplicationController
     end
 
     def course_params
-      params.expect(course: [ :name, :course_code, :semester, :month, :year, :is_completed, :user_id, :organization_id ])
+      params.permit(:name, :course_code, :month, :year, :is_completed, :user_id, :organization_id)
     end
 end

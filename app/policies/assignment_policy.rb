@@ -24,7 +24,7 @@ class AssignmentPolicy < ApplicationPolicy
   private
 
   def global_admin_or_teacher_or_org_admin?
-    user.global_admin? || user.org_admin? || (user.teacher? && record.enrollment.course.user_id == user.id)
+    user.global_admin? || user.org_admin? || (user.teacher? && record.course.user_id == user.id)
   end
 
 

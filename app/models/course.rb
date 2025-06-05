@@ -16,10 +16,8 @@ class Course < ApplicationRecord
     message: "must be unique for the same course details in a given year and semester"
   }
 
-  WINTER = 0
-  SPRING = 1
-  SUMMER = 2
-  FALL = 3
+  FIRST = 1
+  SECOND = 2
 
-  validates :semester, presence: true, inclusion: { in: [ WINTER, SPRING, SUMMER, FALL ] }
+  validates :semester, presence: true, inclusion: { in: [ FIRST, SECOND ] }
 end

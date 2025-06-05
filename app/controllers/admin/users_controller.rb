@@ -18,7 +18,7 @@ class Admin::UsersController < ApplicationController
     incoming_role = params[:role].to_s
     role_int = ROLE_MAP[incoming_role]
 
-    if role_int.nil?
+    if role_int.blank?
       return render json: { error: "Unknown role '#{incoming_role}'" }, status: :unprocessable_entity
     end
 

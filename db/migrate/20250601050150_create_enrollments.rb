@@ -7,8 +7,8 @@ class CreateEnrollments < ActiveRecord::Migration[8.0]
       t.string :grade, default: nil, null: true
 
       t.timestamps
-
-      add_index :enrollments, [ :user_id, :course_id ], unique: true
     end
+
+    add_index :enrollments, [ :user_id, :course_id ], unique: true
   end
 end

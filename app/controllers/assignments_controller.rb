@@ -1,5 +1,8 @@
 # app/controllers/assignments_controller.rb
 class AssignmentsController < ApplicationController
+  include Authenticatable
+  include Pundit
+
   before_action :set_course
   before_action :set_assignment, only: [ :show, :update, :destroy ]
   before_action :authorize_assignment, only: [ :create, :update, :destroy ]
@@ -16,6 +19,9 @@ class AssignmentsController < ApplicationController
 
   def create
     @assignment = @course.assignments.build(assignment_params)
+
+    binding.pry
+
     authorize @assignment
 
     if @assignment.save
@@ -60,6 +66,6 @@ class AssignmentsController < ApplicationController
   end
 
   def assignment_params
-    params.require(:assignment).permit(:title, :assignment_type, :max_score, :deadline)
+    params.permit(:title, :assignment_type, :max_score, :deadline)
   end
 end

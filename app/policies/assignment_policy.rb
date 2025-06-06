@@ -6,7 +6,7 @@ class AssignmentPolicy < ApplicationPolicy
   end
 
   def show?
-    global_admin_or_teacher_or_org_admin? || student_owns_enrollment?
+    global_admin_or_teacher_or_org_admin? || student?
   end
 
   def create?
@@ -14,7 +14,7 @@ class AssignmentPolicy < ApplicationPolicy
   end
 
   def update?
-    global_admin_or_teacher_or_org_admin?
+    global_admin_or_teacher_or_org_admin? || student?
   end
 
   def destroy?
@@ -27,13 +27,17 @@ class AssignmentPolicy < ApplicationPolicy
     user.global_admin? || user.org_admin? || (user.teacher? && record.course.user_id == user.id)
   end
 
+  def student?
+    user.student? && record.course.enrollments.exists?(user_id: user.id)
+  end
+
 
   class Scope < Scope
     def resolve
       if user.global_admin? || user.org_admin?
         scope.all
       elsif user.teacher?
-        scope.joins(enrollment: :course).where(courses: { user_id: user.id })
+        scope.joins(:course).where(courses: { user_id: user.id })
       elsif user.student?
         scope.joins(course: :enrollments).where(enrollments: { user_id: user.id })
       else

@@ -11,7 +11,7 @@ class CoursesController < ApplicationController
 
   def index
     authorize Course
-    render json: Course.all
+    render json: policy_scope(Course).order(:semester, :year, :month).reverse
   end
 
   def show

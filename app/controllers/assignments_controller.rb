@@ -20,8 +20,6 @@ class AssignmentsController < ApplicationController
   def create
     @assignment = @course.assignments.build(assignment_params)
 
-    binding.pry
-
     authorize @assignment
 
     if @assignment.save

@@ -14,7 +14,7 @@ class AssessmentPolicy < ApplicationPolicy
   end
 
   def update?
-    global_admin_or_teacher_or_org_admin?
+    global_admin_or_teacher_or_org_admin? || student_owns_enrollment?
   end
 
   def destroy?
@@ -36,7 +36,7 @@ class AssessmentPolicy < ApplicationPolicy
       if user.global_admin? || user.org_admin?
         scope.all
       elsif user.teacher?
-        scope.joins(enrollment: :course).where(courses: { user_id: user.id })
+        scope.joins(:course).where(courses: { user_id: user.id })
       elsif user.student?
         scope.joins(:enrollment).where(enrollments: { user_id: user.id })
       else

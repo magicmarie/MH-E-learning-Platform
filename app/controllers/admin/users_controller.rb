@@ -5,7 +5,6 @@ class Admin::UsersController < ApplicationController
   include UserManagement
 
   ROLE_MAP = {
-    "global_admin" => User::GLOBAL_ADMIN,
     "org_admin"    => User::ORG_ADMIN,
     "teacher"      => User::TEACHER,
     "student"      => User::STUDENT
@@ -62,7 +61,7 @@ class Admin::UsersController < ApplicationController
 
   # Global admins can see all users
   def user_scope
-    User.all
+    User.where.not(role: User::GLOBAL_ADMIN)
   end
 
   def user_params

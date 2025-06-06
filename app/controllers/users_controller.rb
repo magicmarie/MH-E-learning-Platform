@@ -53,7 +53,7 @@ class UsersController < ApplicationController
 
   def user_scope
     # Org admins only manage users in their org except global admins
-    current_user.organization.users.where.not(role: User::GLOBAL_ADMIN)
+    current_user.organization.users.where.not(id: current_user.id)
   end
 
   def user_params

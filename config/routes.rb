@@ -47,6 +47,8 @@ Rails.application.routes.draw do
 
   # Global Admin — manage everything
   namespace :admin do
+    get "organizations/stats", to: "organizations#index_stats" # GET /admin/organizations/stats
+
     resources :organizations, only: [ :index, :create, :show, :update, :destroy ]
     # GET /admin/organizations
     # POST /admin/organizations
@@ -61,6 +63,36 @@ Rails.application.routes.draw do
         get :profile # GET /admin/users/:id/profile
         get :organization # GET /admin/users/:id/organization
       end
+    end
+
+    resources :courses, only: [ :index, :create, :update, :destroy, :show ] do
+      # GET /admin/courses
+      # POST /admin/courses
+      # GET /admin/courses/:id
+      # PATCH /admin/courses/:id
+      # DELETE /admin/courses/:id
+
+      resources :enrollments, only: [ :index, :create, :update, :destroy, :show ] do
+        # GET /admin/courses/:course_id/enrollments
+        # GET /admin/courses/:course_id/enrollments/:id
+        # POST /admin/courses/:course_id/enrollments
+        # PATCH /admin/courses/:course_id/enrollments/:id
+        # DELETE /admin/courses/:course_id/enrollments/:id
+        post "enrollments/bulk", to: "enrollments#bulk_create"
+      end
+
+      resources :assignments, only: [ :index, :create, :update, :destroy, :show ]
+      # GET /admin/courses/:course_id/assignments
+      # GET /admin/courses/:course_id/assignments/:id
+      # POST /admin/courses/:course_id/assignments
+      # PATCH /admin/courses/:course_id/assignments/:id
+      # DELETE /admin/courses/:course_id/assignments/:id
+
+      resources :assessments, only: [ :index, :create, :update, :show ]
+      # GET /admin/courses/:course_id/assessments
+      # POST /admin/courses/:course_id/assessments
+      # GET /admin/courses/:course_id/assessments/:id
+      # PATCH /admin/courses/:course_id/assessments/:id
     end
   end
 

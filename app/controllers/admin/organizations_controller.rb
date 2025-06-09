@@ -54,6 +54,21 @@ class Admin::OrganizationsController < ApplicationController
     # render json: { message: "Organization and users deleted" }
   end
 
+  def index_stats
+    authorize Organization
+
+    stats = Organization.all.map do |org|
+      {
+        organization_name: org.name,
+        admins_count: org.users.where(role: Constants::Roles::ROLES[:org_admin]).count,
+        teachers_count: org.users.where(role: Constants::Roles::ROLES[:teacher]).count,
+        students_count: org.users.where(role: Constants::Roles::ROLES[:student]).count
+      }
+    end
+
+    render json: stats
+  end
+
   private
 
   def org_params

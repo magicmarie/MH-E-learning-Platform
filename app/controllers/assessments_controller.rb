@@ -12,7 +12,21 @@ class AssessmentsController < ApplicationController
   end
 
   def update
+    if current_user.admin?
+      @assessment.assessed_on = Time.current
+    elsif current_user.student?
+      @assessment.submitted_at = Time.current
+    end
+
     if @assessment.update(assessment_params)
+      user_email = current_user.email
+
+      begin
+        UserMailer.welcome_user(@assessment, user_email).deliver_now
+      rescue => e
+        Rails.logger.error("Failed to send assessment email to #{user.email}: #{e.message}")
+      end
+
       render json: @assessment
     else
       render json: { errors: @assessment.errors.full_messages }, status: :unprocessable_entity

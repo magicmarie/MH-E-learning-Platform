@@ -2,7 +2,7 @@
 
 class CoursePolicy < ApplicationPolicy
   def index?
-    user.org_admin? || user.teacher?
+    admins_or_teacher? || user.student?
   end
 
   def show?
@@ -14,15 +14,19 @@ class CoursePolicy < ApplicationPolicy
   end
 
   def create?
-    user.org_admin? || user.teacher?
+    admins_or_teacher?
   end
 
   def update?
-    user.org_admin? || (user.teacher? && record.user_id == user.id)
+    user.global_admin? || user.org_admin? || (user.teacher? && record.user_id == user.id)
   end
 
   def destroy?
-    user.org_admin? || (user.teacher? && record.user_id == user.id)
+    user.global_admin? || user.org_admin? || (user.teacher? && record.user_id == user.id)
+  end
+
+  def admins_or_teacher?
+    user.global_admin? || user.org_admin? || user.teacher?
   end
 
   class Scope < Scope

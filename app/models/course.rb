@@ -16,8 +16,7 @@ class Course < ApplicationRecord
     message: "must be unique for the same course details in a given year and semester"
   }
 
-  FIRST = 1
-  SECOND = 2
-
-  validates :semester, presence: true, inclusion: { in: [ FIRST, SECOND ] }
+  validates :semester, presence: true, inclusion: { in: [
+    Constants::Semesters::SEMESTERS[:first],
+    Constants::Semesters::SEMESTERS[:second] ] }
 end

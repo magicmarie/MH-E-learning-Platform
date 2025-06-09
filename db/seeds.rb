@@ -17,11 +17,11 @@ admin_security_question = ENV["GLOBAL_ADMIN_SECURITY_QUESTION"]
 raise "Missing admin ENV vars" unless admin_email && admin_password && admin_security_answer
 
 # Global Admin
-if User.where(role: :global_admin).empty?
+if User.global_admins.empty?
   global_admin = User.create!(
     email: admin_email,
     password: admin_password,
-    role: User::GLOBAL_ADMIN,
+    role: Constants::Roles::ROLES[:global_admin],
     organization: nil,
     active: true,
     security_question: admin_security_question,
@@ -34,13 +34,13 @@ end
 3.times do |i|
   org = Organization.create!(
     name: "Org #{i + 1}",
-    organization_code: "ORG#{i + 1}CODE"
+    organization_code: "ORG#{format('%03d', i + 1)}"
   )
 
   org_admin = org.users.create!(
     email: "orgadmin#{i + 1}@example.com",
     password: "orgadmin",
-    role: User::ORG_ADMIN,
+    role: Constants::Roles::ROLES[:org_admin],
     active: true,
     organization: org
   )
@@ -52,7 +52,7 @@ end
     teacher = org.users.create!(
       email: "teacher#{i + 1}_#{t + 1}@example.com",
       password: "teacher",
-      role: User::TEACHER,
+      role: Constants::Roles::ROLES[:teacher],
       active: true,
       organization: org
     )
@@ -65,7 +65,7 @@ end
     student = org.users.create!(
       email: "student#{i + 1}_#{s + 1}@example.com",
       password: "student",
-      role: User::STUDENT,
+      role: Constants::Roles::ROLES[:student],
       active: true,
       organization: org
     )
@@ -78,7 +78,7 @@ end
     course = Course.create!(
       name: "Course #{idx + 1} Org#{i + 1}",
       course_code: "COURSE#{i + 1}_#{idx + 1}",
-      semester: [ Course::FIRST, Course::SECOND ].sample.to_i,
+      semester: [ Constants::Semesters::SEMESTERS[:first], Constants::Semesters::SEMESTERS[:second] ].sample.to_i,
       month: rand(1..12).to_i,
       year: 2025,
       is_completed: [ true, false ].sample,

@@ -1,4 +1,4 @@
-<h1>Welcome to the Platform</h1>
+<h1>Welcome to the MH-ELP - <%= @user.organization.name%></h1>
 
 <p>Hello <%= @user.email %>,</p>
 
@@ -10,6 +10,9 @@
   <li><strong>Temporary Password:</strong> <%= @temp_password %></li>
 </ul>
 
-<p>Please log in and change your password if you want to.</p>
+<p>Welcome! Please click the link below to reset your password:</p>
+<p><a href="<%= @reset_url %>">Reset your password</a></p>
+<p>Expires in 15 minutes!!!</p>
 
 <p>Thank you!</p>
+<p>MH-ELP support Team</p>

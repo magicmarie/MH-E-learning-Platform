@@ -9,7 +9,7 @@ module UserManagement
   def index
     authorize User
     users = policy_scope(User).where(active: true)
-    users = users.where.not(role: User::GLOBAL_ADMIN) unless current_user.global_admin?
+    users = users.where.not(role: Constants::Roles::ROLES[:global_admin]) unless current_user.global_admin?
     render json: users
   end
 

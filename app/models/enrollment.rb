@@ -3,12 +3,12 @@ class Enrollment < ApplicationRecord
   belongs_to :course
   has_many :assessments, dependent: :destroy
 
-  DROPPED = 0
-  ACTIVE = 1
-  PASSED = 2
-  FAILED = 3
-
-  validates :status, presence: true, inclusion: { in: [ DROPPED, ACTIVE, PASSED, FAILED ] }
+  validates :status, presence: true, inclusion: { in: [
+    Constants::EnrollmentStatus::STATUSES[:dropped],
+    Constants::EnrollmentStatus::STATUSES[:active],
+    Constants::EnrollmentStatus::STATUSES[:passed],
+    Constants::EnrollmentStatus::STATUSES[:failed]
+  ] }
 
   def total_score
     assessments.sum(:score)

@@ -6,5 +6,5 @@ class Organization < ApplicationRecord
     presence: true,
     uniqueness: true,
     format: { with: /\A[a-zA-Z0-9\-_]+\z/, message: "only allows letters, numbers, dashes, and underscores" },
-    length: { minimum: 7, maximum: 7, message: "must be exactly 7 characters long" }
+    length: { minimum: 6, maximum: 6, message: "must be exactly 6 characters long" }
 end

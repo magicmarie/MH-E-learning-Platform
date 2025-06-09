@@ -4,11 +4,15 @@ class OrganizationPolicy < ApplicationPolicy
   end
 
   def create?
-    user.global_admin?
+    index?
   end
 
   def destroy?
-    user.global_admin?
+    index?
+  end
+
+  def index_stats?
+    index?
   end
 
   def show?
@@ -16,7 +20,7 @@ class OrganizationPolicy < ApplicationPolicy
   end
 
   def update?
-    user.global_admin? || (user.org_admin? && user.organization_id == record.id)
+    show?
   end
 
   class Scope < ApplicationPolicy::Scope

@@ -4,11 +4,6 @@ class CoursesController < ApplicationController
 
   before_action :set_course, only: [ :show, :update, :destroy ]
 
-  SEMESTER_MAP = {
-    "FIRST" => Course::FIRST,
-    "SECOND" => Course::SECOND
-  }.freeze
-
   def index
     authorize Course
     render json: policy_scope(Course).order(:semester, :year, :month).reverse
@@ -21,14 +16,16 @@ class CoursesController < ApplicationController
   def create
     authorize Course
 
-    incoming_semester = params[:semester]
-    semester_int = SEMESTER_MAP[incoming_semester]
+    incoming_semester = params[:semester].to_sym
+    semester_int = Constants::Semesters::SEMESTERS[incoming_semester]
 
     if semester_int.blank?
       return render json: { error: "Unknown semester '#{incoming_semester}'" }, status: :unprocessable_entity
     end
 
-    @course = Course.new(course_params.merge(semester: semester_int))
+    user = current_user
+    organization_id = user.organization_id
+    @course = Course.new(course_params.merge(semester: semester_int, user_id: user.id, organization_id: organization_id))
 
     if @course.save
       render json: @course, status: :created
@@ -55,6 +52,6 @@ class CoursesController < ApplicationController
     end
 
     def course_params
-      params.permit(:name, :course_code, :month, :year, :is_completed, :user_id, :organization_id)
+      params.permit(:name, :course_code, :month, :year, :is_completed, :semester)
     end
 end

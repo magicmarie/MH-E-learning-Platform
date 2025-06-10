@@ -36,11 +36,19 @@ Rails.application.routes.draw do
   # GET /organization
   # PATCH /organization
 
+  resources :profiles, only: [ :show, :update, :destroy ]
+  # GET /profiles/:id
+  # PATCH /profiles/:id
+  # DELETE /profiles/:id
+
+  resources :students, only: [ :index, :show ]
+  # GET /students
+  # GET /students/:id
+
   resources :users, only: [ :create, :index, :update ] do
     member do
       patch :activate # PATCH /users/:id/activate
       patch :deactivate # PATCH /users/:id/deactivate
-      get :profile # GET /users/:id/profile
       get :organization # GET /users/:id/organization
     end
   end
@@ -60,7 +68,6 @@ Rails.application.routes.draw do
       member do
         patch :activate # PATCH /admin/users/:id/activate
         patch :deactivate # PATCH /admin/users/:id/deactivate
-        get :profile # GET /admin/users/:id/profile
         get :organization # GET /admin/users/:id/organization
       end
     end
@@ -72,14 +79,13 @@ Rails.application.routes.draw do
       # PATCH /admin/courses/:id
       # DELETE /admin/courses/:id
 
-      resources :enrollments, only: [ :index, :create, :update, :destroy, :show ] do
-        # GET /admin/courses/:course_id/enrollments
-        # GET /admin/courses/:course_id/enrollments/:id
-        # POST /admin/courses/:course_id/enrollments
-        # PATCH /admin/courses/:course_id/enrollments/:id
-        # DELETE /admin/courses/:course_id/enrollments/:id
-        post "enrollments/bulk", to: "enrollments#bulk_create"
-      end
+      post "enrollments/bulk", to: "enrollments#bulk_create"
+      resources :enrollments, only: [ :index, :create, :update, :destroy, :show ]
+      # GET /admin/courses/:course_id/enrollments
+      # GET /admin/courses/:course_id/enrollments/:id
+      # POST /admin/courses/:course_id/enrollments
+      # PATCH /admin/courses/:course_id/enrollments/:id
+      # DELETE /admin/courses/:course_id/enrollments/:id
 
       resources :assignments, only: [ :index, :create, :update, :destroy, :show ]
       # GET /admin/courses/:course_id/assignments
@@ -104,14 +110,13 @@ Rails.application.routes.draw do
     # PATCH /courses/:id
     # DELETE /courses/:id
 
-    resources :enrollments, only: [ :index, :create, :update, :destroy, :show ] do
-      # GET /courses/:course_id/enrollments
-      # GET /courses/:course_id/enrollments/:id
-      # POST /courses/:course_id/enrollments
-      # PATCH /courses/:course_id/enrollments/:id
-      # DELETE /courses/:course_id/enrollments/:id
-      post "enrollments/bulk", to: "enrollments#bulk_create"
-    end
+    post "enrollments/bulk", to: "enrollments#bulk_create"
+    resources :enrollments, only: [ :index, :create, :update, :destroy, :show ]
+    # GET /courses/:course_id/enrollments
+    # GET /courses/:course_id/enrollments/:id
+    # POST /courses/:course_id/enrollments
+    # PATCH /courses/:course_id/enrollments/:id
+    # DELETE /courses/:course_id/enrollments/:id
 
     resources :assignments, only: [ :index, :create, :update, :destroy, :show ]
     # GET /courses/:course_id/assignments

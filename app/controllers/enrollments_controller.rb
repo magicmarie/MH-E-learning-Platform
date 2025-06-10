@@ -1,5 +1,6 @@
 # app/controllers/enrollments_controller.rb
 class EnrollmentsController < ApplicationController
+  include Authenticatable
   include Pundit
 
   before_action :set_course
@@ -44,23 +45,22 @@ class EnrollmentsController < ApplicationController
     course = Course.find(params[:course_id])
     authorize course, :update?
 
-    user_ids = params[:user_ids] # array of student user IDs
-    status = params[:status] || "ACTIVE"
+    user_ids = params[:user_ids] || []
+    status = params[:status] || nil
 
     created = []
     failed = []
 
-    user_ids.each do |uid|
-      user = User.find_by(id: uid)
-      next unless user&.student?
+    users = User.where(id: user_ids).select(&:student?)
 
+    users.each do |user|
       enrollment = Enrollment.find_or_initialize_by(user: user, course: course)
-      enrollment.status = status
+      enrollment.status = status if status.present?
 
       if enrollment.save
         created << enrollment
       else
-        failed << { user_id: uid, errors: enrollment.errors.full_messages }
+        failed << { user_id: user.id, errors: enrollment.errors.full_messages }
       end
     end
 
@@ -81,6 +81,6 @@ class EnrollmentsController < ApplicationController
   end
 
   def enrollment_params
-    params.require(:enrollment).permit(:user_id)
+    params.permit(:user_id, :course_id, :status, :grade)
   end
 end

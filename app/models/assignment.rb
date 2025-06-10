@@ -6,5 +6,25 @@ class Assignment < ApplicationRecord
   validates :title, :deadline, presence: true
   validates :max_score, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validates :assignment_type, presence: true, inclusion: { in: [
-    QUIZ, HOMEWORK, EXAM, PROJECT ] }
+    Constants::AssignmentTypes::ASSIGNMENT_TYPES[:quiz],
+    Constants::AssignmentTypes::ASSIGNMENT_TYPES[:homework],
+    Constants::AssignmentTypes::ASSIGNMENT_TYPES[:exam],
+    Constants::AssignmentTypes::ASSIGNMENT_TYPES[:project]
+  ] }
+
+  def assignment_type_name
+    Constants::AssignmentTypes::ASSIGNMENT_TYPE_NAMES[self.assignment_type]
+  end
+
+  def assessment_count
+    assessments.count
+  end
+
+  def submissions_count
+    assessments.where.not(submitted_at: nil).count
+  end
+
+  def assessed_count
+    assessments.where.not(assessed_on: nil).count
+  end
 end

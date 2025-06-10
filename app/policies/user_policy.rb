@@ -1,6 +1,6 @@
 class UserPolicy < ApplicationPolicy
   def index?
-    user.org_admin? || user.global_admin?
+    user.org_admin? || user.global_admin? || user.teacher?
   end
 
   def create?
@@ -30,12 +30,24 @@ class UserPolicy < ApplicationPolicy
     activate?
   end
 
+  def destroy?
+    user.global_admin? || user.org_admin?
+  end
+
+  def show?
+    user.org_admin? || user.global_admin? || user.teacher? || user.student?
+  end
+
   class Scope < ApplicationPolicy::Scope
     def resolve
       if user.global_admin?
         scope.all
       elsif user.org_admin?
         scope.where(organization_id: user.organization_id)
+      elsif user.teacher?
+        scope.where(organization_id: user.organization_id, role: :student)
+      elsif user.student?
+        scope.where(id: user.id)
       else
         scope.none
       end

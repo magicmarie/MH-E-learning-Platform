@@ -19,4 +19,18 @@ class Course < ApplicationRecord
   validates :semester, presence: true, inclusion: { in: [
     Constants::Semesters::SEMESTERS[:first],
     Constants::Semesters::SEMESTERS[:second] ] }
+
+  def enrollment_count
+    enrollments.count
+  end
+
+  def assignment_type_counts
+    zero_counts = Constants::AssignmentTypes::ASSIGNMENT_TYPE_NAMES.values.map { |type| [ type.to_s, 0 ] }.to_h
+    raw_counts = assignments.group(:assignment_type).count.transform_keys { |int_key| Constants::AssignmentTypes::ASSIGNMENT_TYPE_NAMES[int_key].to_s }
+    zero_counts.merge(raw_counts)
+  end
+
+  def semester_info
+    Constants::Semesters::SEMESTER_NAMES[self.semester]
+  end
 end

@@ -93,7 +93,12 @@ end
     (1..2).each_with_index do |x, a_idx|
       assignment = Assignment.create!(
         title: "#{course.name} Assignment #{x}",
-        assignment_type: [ Assignment::QUIZ, Assignment::HOMEWORK, Assignment::EXAM, Assignment::PROJECT ].sample,
+        assignment_type: [
+          Constants::AssignmentTypes::ASSIGNMENT_TYPES[:quiz],
+          Constants::AssignmentTypes::ASSIGNMENT_TYPES[:homework],
+          Constants::AssignmentTypes::ASSIGNMENT_TYPES[:exam],
+          Constants::AssignmentTypes::ASSIGNMENT_TYPES[:project]
+        ].sample,
         max_score: rand(10..100),
         deadline: Time.zone.now + (a_idx + 1).weeks,
         course: course,

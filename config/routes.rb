@@ -111,6 +111,13 @@ Rails.application.routes.draw do
     get "students/unenrolled", to: "students#unenrolled"
     post "enrollments/bulk", to: "enrollments#bulk_create"
 
+    resources :resources, only: [ :index, :create, :update, :destroy, :show ]
+    # GET /courses/:course_id/resources
+    # GET /courses/:course_id/resources/:id
+    # POST /courses/:course_id/resources
+    # PATCH /courses/:course_id/resources/:id
+    # DELETE /courses/:course_id/resources/:id
+
     resources :enrollments, only: [ :index, :create, :update, :destroy, :show ]
     # GET /courses/:course_id/enrollments
     # GET /courses/:course_id/enrollments/:id

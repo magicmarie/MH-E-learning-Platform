@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_05_233923) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_11_195742) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -103,6 +103,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_05_233923) do
     t.index ["organization_code"], name: "index_organizations_on_organization_code", unique: true
   end
 
+  create_table "resources", force: :cascade do |t|
+    t.string "title"
+    t.text "description"
+    t.boolean "visible", default: false
+    t.bigint "course_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_resources_on_course_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email"
     t.string "password_digest"
@@ -130,6 +140,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_05_233923) do
   add_foreign_key "courses", "users"
   add_foreign_key "enrollments", "courses"
   add_foreign_key "enrollments", "users"
+  add_foreign_key "resources", "courses"
   add_foreign_key "users", "organizations"
   add_foreign_key "users", "users", column: "deactivated_by_id"
 end

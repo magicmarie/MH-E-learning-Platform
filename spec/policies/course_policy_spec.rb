@@ -76,7 +76,7 @@ RSpec.describe CoursePolicy do
       let(:current_user) { build_stubbed(:user) }
 
       before do
-        allow(course).to receive(:users).and_return([current_user])
+        allow(course).to receive(:users).and_return([ current_user ])
       end
 
       it "allows access" do

@@ -11,13 +11,12 @@ RSpec.describe UserMailer, type: :mailer do
       expect {
       described_class.welcome_user(nil, temp_password, reset_password_url).deliver_now
     }.to raise_error(ArgumentError, "User is nil in welcome_user mailer")
-
     end
 
     it "renders the headers" do
       expect(mail.subject).to eq("Welcome to the MH-ELP Platform!")
-      expect(mail.to).to eq([user.email])
-      expect(mail.from).to eq(["natukunda162@gmail.com"])
+      expect(mail.to).to eq([ user.email ])
+      expect(mail.from).to eq([ "natukunda162@gmail.com" ])
     end
 
     it "assigns instance variables for the email template" do

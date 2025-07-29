@@ -23,8 +23,8 @@ RSpec.describe AssessmentMailer, type: :mailer do
 
     it "renders the headers" do
     expect(mail.subject).to eq("Assessment update!")
-    expect(mail.to).to eq([user_email])
-    expect(mail.from).to eq(["natukunda162@gmail.com"])
+    expect(mail.to).to eq([ user_email ])
+    expect(mail.from).to eq([ "natukunda162@gmail.com" ])
   end
 
   it "assigns instance variables for the email template" do

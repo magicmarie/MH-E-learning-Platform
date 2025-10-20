@@ -12,6 +12,8 @@ class Assignment < ApplicationRecord
     Constants::AssignmentTypes::ASSIGNMENT_TYPES[:project]
   ] }
 
+  after_create :create_assessments_for_enrollments
+
   def assignment_type_name
     Constants::AssignmentTypes::ASSIGNMENT_TYPE_NAMES[self.assignment_type]
   end
@@ -26,5 +28,12 @@ class Assignment < ApplicationRecord
 
   def assessed_count
     assessments.where.not(assessed_on: nil).count
+  end
+
+  # Automatically create assessments for all enrolled students
+  def create_assessments_for_enrollments
+    course.enrollments.find_each do |enrollment|
+      assessments.create!(enrollment: enrollment, score: 0)
+    end
   end
 end

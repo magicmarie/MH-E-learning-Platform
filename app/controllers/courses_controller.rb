@@ -5,10 +5,11 @@ class CoursesController < ApplicationController
   include Pundit::Authorization
 
   before_action :set_course, only: [ :show, :update, :destroy ]
+  before_action :authorize_course, only: [ :show, :update, :destroy ]
 
   def index
     authorize Course
-    courses = policy_scope(Course).order(:semester, :year, :month).reverse
+    courses = policy_scope(Course).order(year: :desc, semester: :desc, month: :desc)
     render json: courses
   end
 
@@ -19,12 +20,8 @@ class CoursesController < ApplicationController
   def create
     authorize Course
 
-    incoming_semester = params[:semester].to_sym
-    semester_int = Constants::Semesters::SEMESTERS[incoming_semester]
-
-    unless semester_int
-      return render json: { error: "Unknown semester '#{incoming_semester}'" }, status: :unprocessable_entity
-    end
+    semester_int = semester_param_to_int(params[:semester])
+    return unless semester_int
 
     @course = Course.new(course_params.merge(
       semester: semester_int,
@@ -35,22 +32,18 @@ class CoursesController < ApplicationController
     if @course.save
       render json: @course, status: :created
     else
-      render json: @course.errors, status: :unprocessable_entity
+      render json: { errors: @course.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   def update
-    incoming_semester = params[:semester]&.to_sym
-    semester_int = Constants::Semesters::SEMESTERS[incoming_semester]
-
-    unless semester_int
-      return render json: { error: "Unknown semester '#{semester_key}'" }, status: :unprocessable_entity
-    end
+    semester_int = semester_param_to_int(params[:semester])
+    return unless semester_int
 
     if @course.update(course_params.merge(semester: semester_int))
       render json: @course
     else
-      render json: @course.errors, status: :unprocessable_entity
+      render json: { errors: @course.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -65,13 +58,27 @@ class CoursesController < ApplicationController
     @course = Course.find(params[:id])
   end
 
-  def course_params
-    base_params = [ :name, :course_code, :month, :year, :is_completed ]
+  def authorize_course
+    authorize @course
+  end
 
-    if current_user.global_admin?
-      base_params += [ :user_id, :organization_id ]
+  def course_params
+    base_params = [:name, :course_code, :month, :year, :is_completed]
+    base_params += [:user_id, :organization_id] if current_user.global_admin?
+    params.permit(*base_params)
+  end
+
+  def semester_param_to_int(param)
+    return nil unless param
+
+    key = param.to_sym
+    semester_int = Constants::Semesters::SEMESTERS[key]
+
+    unless semester_int
+      render json: { errors: ["Unknown semester '#{param}'"] }, status: :unprocessable_entity
+      return nil
     end
 
-    params.permit(*base_params)
+    semester_int
   end
 end

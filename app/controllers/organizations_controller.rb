@@ -4,45 +4,36 @@ class OrganizationsController < ApplicationController
   include Authenticatable
   include Pundit::Authorization
 
-  before_action :authorize_request, only: [ :show, :update ]
-  before_action :set_organization, only: [ :show, :update ]
+  before_action :authorize_request, only: [:show, :update]
+  before_action :set_organization, only: [:show, :update]
+  before_action :authorize_organization, only: [:show, :update]
 
   def index
-    render json: Organization.all
+    authorize Organization
+    organizations = policy_scope(Organization)
+    render json: organizations
   end
 
   def show
-    if @organization.nil?
-
-      render json: { error: "Organization not found" }, status: :not_found
-    else
-      authorize @organization
-      render json: @organization
-    end
+    render json: @organization
   end
 
   def update
-    if @organization.nil?
-      render json: { error: "Organization not found" }, status: :not_found
+    if @organization.update(org_params)
+      render json: @organization
     else
-      authorize @organization
-
-      if @organization.update(org_params)
-        render json: @organization
-      else
-        render json: { errors: @organization.errors.full_messages }, status: :unprocessable_entity
-      end
+      render json: { errors: @organization.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   def search
-    query = params[:q].to_s.strip
+    query = params[:q].to_s.strip.downcase
 
     if query.length < 3
-      return render json: { error: "Query too short" }, status: :bad_request
+      return render json: { errors: ["Query too short"] }, status: :bad_request
     end
 
-    matches = Organization
+    matches = policy_scope(Organization)
       .where("LOWER(organization_code) LIKE ?", "#{query}%")
       .select(:id, :name, :organization_code)
       .limit(8)
@@ -54,6 +45,11 @@ class OrganizationsController < ApplicationController
 
   def set_organization
     @organization = current_user&.organization
+    render json: { errors: ["Organization not found"] }, status: :not_found unless @organization
+  end
+
+  def authorize_organization
+    authorize @organization
   end
 
   def org_params

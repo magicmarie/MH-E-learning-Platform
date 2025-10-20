@@ -4,25 +4,21 @@ class ResourcesController < ApplicationController
   include Authenticatable
   include Pundit::Authorization
 
-  before_action :authorize_request
+  before_action :set_course
   before_action :set_resource, only: [ :show, :update, :destroy ]
+  before_action :authorize_resource, only: [ :show, :update, :destroy, :create ]
 
   def index
-    @resources = policy_scope(Resource).where(course_id: params[:course_id])
+    @resources = policy_scope(@course.resources)
     render json: @resources
   end
 
   def show
-    authorize @resource
     render json: @resource
   end
 
   def create
-    course = Course.find(params[:course_id])
-    @resource = Resource.new(resource_params)
-    @resource.course = course
-    authorize @resource
-
+    @resource = @course.resources.build(resource_params)
     if @resource.save
       render json: @resource, status: :created
     else
@@ -31,7 +27,6 @@ class ResourcesController < ApplicationController
   end
 
   def update
-    authorize @resource
     if @resource.update(resource_params)
       render json: @resource
     else
@@ -40,15 +35,22 @@ class ResourcesController < ApplicationController
   end
 
   def destroy
-    authorize @resource
     @resource.destroy
     head :no_content
   end
 
   private
 
+  def set_course
+    @course = Course.find(params[:course_id])
+  end
+
   def set_resource
-    @resource = Resource.find(params[:id])
+    @resource = @course.resources.find(params[:id])
+  end
+
+  def authorize_resource
+    authorize @resource || Resource.new(course: @course)
   end
 
   def resource_params

@@ -25,8 +25,16 @@ class User < ApplicationRecord
   validate :only_one_global_admin, if: -> { global_admin? }
 
   after_create :create_default_profile, unless: :global_admin?
+  before_validation :normalize_email
 
   scope :global_admins, -> { where(role: Constants::Roles::ROLES[:global_admin]) }
+  scope :students_in_organization, ->(organization) {
+    where(role: Constants::Roles::ROLES[:student], organization: organization)
+  }
+
+  def normalize_email
+    self.email = email.strip.downcase if email.present?
+  end
 
   def global_admin?
     role == Constants::Roles::ROLES[:global_admin]
@@ -50,6 +58,20 @@ class User < ApplicationRecord
 
   def create_default_profile
     create_user_profile!
+  end
+
+  def generate_reset_token(expiration = 1.hour.from_now)
+    JsonWebToken.encode({ user_id: id, iat: Time.current.to_i }, expiration)
+  end
+
+  # Check if a token is still valid (not reused)
+  def reset_token_used_after?(issued_at)
+    reset_password_token_used_at.present? && reset_password_token_used_at > issued_at.to_time
+  end
+
+  # Mark the token as used
+  def mark_reset_token_used!
+    update!(reset_password_token_used_at: Time.current)
   end
 
   private

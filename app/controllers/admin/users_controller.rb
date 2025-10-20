@@ -4,8 +4,6 @@ class Admin::UsersController < ApplicationController
   include Authenticatable
   include UserManagement
 
-  before_action :authorize_request
-
   def create
     authorize User
 

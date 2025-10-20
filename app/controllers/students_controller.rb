@@ -4,13 +4,12 @@ class StudentsController < ApplicationController
   include Authenticatable
   include Pundit::Authorization
 
-  before_action :authorize_request
-  before_action :set_student, only: [ :show ]
-  before_action :set_course, only: [ :enrolled, :unenrolled ]
+  before_action :set_student, only: [:show]
+  before_action :set_course, only: [:enrolled, :unenrolled]
 
   def index
     students = students_in_org.includes(enrollments: :course)
-    render json: students
+    render json: students, each_serializer: StudentSerializer
   end
 
   def show
@@ -22,17 +21,15 @@ class StudentsController < ApplicationController
   end
 
   def enrolled
-    students = students_in_org
-               .joins(:enrollments)
-               .where(enrollments: { course_id: @course.id })
+    students = students_in_org.joins(:enrollments)
+                              .where(enrollments: { course_id: @course.id })
+                              .distinct
 
     render json: students, each_serializer: StudentSerializer
   end
 
   def unenrolled
-    enrolled_ids = Enrollment.where(course_id: @course.id).pluck(:user_id)
-
-    students = students_in_org.where.not(id: enrolled_ids)
+    students = students_in_org.where.not(id: @course.enrollments.select(:user_id))
 
     render json: students, each_serializer: StudentSerializer
   end
@@ -49,7 +46,7 @@ class StudentsController < ApplicationController
   end
 
   def students_in_org
-    User.where(role: Constants::Roles::ROLES[:student], organization: current_user.organization)
+    User.students_in_organization(current_user.organization)
   end
 
   def render_not_found(resource)

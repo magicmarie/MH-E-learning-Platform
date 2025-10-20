@@ -6,6 +6,7 @@ class EnrollmentsController < ApplicationController
 
   before_action :set_course
   before_action :set_enrollment, only: [ :show, :update, :destroy ]
+  before_action :authorize_enrollment, only: [ :show, :update, :destroy ]
 
   def index
     @enrollments = policy_scope(@course.enrollments)
@@ -13,7 +14,6 @@ class EnrollmentsController < ApplicationController
   end
 
   def show
-    authorize @enrollment
     render json: @enrollment
   end
 
@@ -29,7 +29,6 @@ class EnrollmentsController < ApplicationController
   end
 
   def update
-    authorize @enrollment
     if @enrollment.update(enrollment_params)
       render json: @enrollment
     else
@@ -38,24 +37,24 @@ class EnrollmentsController < ApplicationController
   end
 
   def destroy
-    authorize @enrollment
     @enrollment.destroy
+    head :no_content
   end
 
   def bulk_create
-    course = Course.find(params[:course_id])
-    authorize course, :update?
+    authorize @course, :update?
 
     user_ids = params[:user_ids] || []
-    status = params[:status] || nil
+    status = params[:status]
 
-    created = []
-    failed = []
+    users = User.where(
+      id: user_ids,
+      role: Constants::Roles::ROLES[:student],
+      organization_id: @course.organization_id)
+    created, failed = [], []
 
-    users = User.where(id: user_ids).select(&:student?)
-
-    users.each do |user|
-      enrollment = Enrollment.find_or_initialize_by(user: user, course: course)
+    users.find_each do |user|
+      enrollment = Enrollment.find_or_initialize_by(user: user, course: @course)
       enrollment.status = status if status.present?
 
       if enrollment.save
@@ -66,7 +65,7 @@ class EnrollmentsController < ApplicationController
     end
 
     render json: {
-      created: created.map { |e| EnrollmentSerializer.new(e) },
+      created: ActiveModelSerializers::SerializableResource.new(created, each_serializer: EnrollmentSerializer),
       failed: failed
     }, status: :created
   end
@@ -79,6 +78,10 @@ class EnrollmentsController < ApplicationController
 
   def set_enrollment
     @enrollment = @course.enrollments.find(params[:id])
+  end
+
+  def authorize_enrollment
+    authorize @enrollment
   end
 
   def enrollment_params

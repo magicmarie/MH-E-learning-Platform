@@ -5,9 +5,10 @@ class AuthController < ApplicationController
 
   before_action :authorize_request, only: [ :change_password ]
 
+  # POST /signup
   def signup
-    result = Auth::Signup.run(organization_id: params[:organization_id], email: params[:email],
-                              password: params[:password], role: params[:role])
+    result = Auth::Signup.run(signup_params)
+
     if result.valid?
       render json: result.result, status: :created
     else
@@ -15,41 +16,55 @@ class AuthController < ApplicationController
     end
   end
 
+  # POST /login
   def login
-    result = Auth::Login.run(
-      email: params[:email],
-      password: params[:password],
-      organization_id: params[:organization_id],
-      security_answer: params[:security_answer]
-    )
+    result = Auth::Login.run(login_params)
+    status = result.result.delete(:status) || :unprocessable_entity
 
-    status = result.result[:status] || :unprocessable_entity
-
-    if result.valid? || result.result[:status] == :partial_content
-      render json: result.result.except(:status), status: status
+    if result.valid? || status == :partial_content
+      render json: result.result, status: status
     else
       render json: { errors: result.errors.full_messages }, status: status
     end
   end
 
+  # POST /verify_security
   def verify_security
-    result = Auth::VerifySecurity.run(email: params[:email],
-                                      security_answer: params[:security_answer])
+    result = Auth::VerifySecurity.run(verify_security_params)
+
     if result.valid?
       render json: result.result, status: :ok
     else
-      render json: { error: result.errors.full_messages.join(", ") }, status: :unauthorized
+      render json: { errors: result.errors.full_messages }, status: :unauthorized
     end
   end
 
+  # PATCH /change_password
   def change_password
-    result = Auth::ChangePassword.run(user: current_user,
-                                      current_password: params[:current_password],
-                                      new_password: params[:new_password])
+    result = Auth::ChangePassword.run(
+      user: current_user,
+      current_password: params[:current_password],
+      new_password: params[:new_password]
+    )
+
     if result.valid?
       render json: result.result, status: :ok
     else
       render json: { errors: result.errors.full_messages }, status: :unprocessable_entity
     end
+  end
+
+  private
+
+  def signup_params
+    params.permit(:organization_id, :email, :password, :role)
+  end
+
+  def login_params
+    params.permit(:organization_id, :email, :password, :security_answer)
+  end
+
+  def verify_security_params
+    params.permit(:email, :security_answer)
   end
 end

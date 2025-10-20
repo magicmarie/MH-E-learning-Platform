@@ -5,8 +5,8 @@ class AssignmentsController < ApplicationController
   include Pundit::Authorization
 
   before_action :set_course
-  before_action :set_assignment, only: [ :show, :update, :destroy ]
-  before_action :authorize_assignment, only: [ :create, :update, :destroy ]
+  before_action :set_assignment, only: [:show, :update, :destroy]
+  before_action :authorize_assignment, only: [:create, :update, :destroy]
 
   def index
     @assignments = policy_scope(@course.assignments)
@@ -14,20 +14,14 @@ class AssignmentsController < ApplicationController
   end
 
   def show
-    authorize @assignment
     render json: @assignment
   end
 
   def create
     @assignment = @course.assignments.build(assignment_params)
-
-    authorize @assignment
-
     if @assignment.save
-      enrollments = @course.enrollments.includes(:user)
-      enrollments.each do |enrollment|
-        Assessment.create!(assignment: @assignment, enrollment: enrollment, score: 0)
-      end
+      # Automatically create assessments for all enrolled students
+      @assignment.create_assessments_for_enrollments
       render json: @assignment, status: :created
     else
       render json: { errors: @assignment.errors.full_messages }, status: :unprocessable_entity
@@ -35,8 +29,6 @@ class AssignmentsController < ApplicationController
   end
 
   def update
-    authorize @assignment
-
     if @assignment.update(assignment_params)
       render json: @assignment
     else
@@ -45,7 +37,6 @@ class AssignmentsController < ApplicationController
   end
 
   def destroy
-    authorize @assignment
     @assignment.destroy
     head :no_content
   end

@@ -6,8 +6,6 @@ class UsersController < ApplicationController
   include Authenticatable
   include UserManagement
 
-  before_action :authorize_request
-
   def create
     user = current_user.organization.users.new(email: params[:email])
     authorize user

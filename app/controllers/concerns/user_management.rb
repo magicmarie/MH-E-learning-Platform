@@ -1,8 +1,12 @@
+# frozen_string_literal: true
+
 module UserManagement
   extend ActiveSupport::Concern
   include Pundit::Authorization
+
   included do
-    before_action :authorize_request
+    before_action :set_user, only: %i[activate deactivate update destroy]
+    after_action :log_user_action, only: %i[activate deactivate update destroy]
   end
 
   def index
@@ -13,66 +17,66 @@ module UserManagement
   end
 
   def activate
-    user = find_user_in_scope(params[:id])
-    return render_not_found unless user
+    authorize @user, :activate?
 
-    authorize user, :activate?
-
-    if user.active?
-      render json: { message: "User is already active" }
+    if @user.active?
+      render_message "User is already active"
     else
-      user.update(active: true, activated_by_id: current_user.id)
-      render json: { message: "User activated" }
+      @user.update(active: true, activated_by_id: current_user.id)
+      render_message "User activated"
     end
   end
 
   def deactivate
-    user = find_user_in_scope(params[:id])
-    return render_not_found unless user
-
-    authorize user, :deactivate?
-
-    user.update(active: false, deactivated_at: Time.current, deactivated_by_id: current_user.id)
-    render json: { message: "User deactivated" }
+    authorize @user, :deactivate?
+    @user.update(active: false, deactivated_at: Time.current, deactivated_by_id: current_user.id)
+    render_message "User deactivated"
   end
 
   def update
-    user = User.find_by(id: params[:id])
-    return render json: { error: "User not found" }, status: :not_found unless user
+    authorize @user
 
-    authorize user
-
-    if user.update(user_params)
-      render json: user, status: :ok
+    if @user.update(user_params)
+      render json: @user, status: :ok
     else
-      render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   def destroy
-    user = find_user_in_scope(params[:id])
-    return render_not_found unless user
-
-    authorize user
-    user.destroy
+    authorize @user
+    @user.destroy
     head :no_content
   end
 
   private
 
+  def set_user
+    @user = user_scope.find_by(id: params[:id])
+    render_not_found unless @user
+  end
+
   def user_params
     params.permit(:email)
   end
 
-  def find_user_in_scope(id)
-    user_scope.find_by(id: id)
+  def user_scope
+    raise NotImplementedError, "#{self.class.name} must define #user_scope"
+  end
+
+  def render_message(message, status: :ok)
+    render json: { message: message }, status: status
   end
 
   def render_not_found
     render json: { error: "User not found" }, status: :not_found
   end
 
-  def user_scope
-    raise NotImplementedError, "Define user_scope in your controller"
+  def log_user_action
+    return unless @user.present?
+
+    Rails.logger.info(
+      "[UserManagement] #{current_user.email} performed #{action_name.upcase} on user ##{@user.id} (#{@user.email})"
+    )
   end
 end

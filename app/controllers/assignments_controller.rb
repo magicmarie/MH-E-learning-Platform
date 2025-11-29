@@ -5,8 +5,8 @@ class AssignmentsController < ApplicationController
   include Pundit::Authorization
 
   before_action :set_course
-  before_action :set_assignment, only: [:show, :update, :destroy]
-  before_action :authorize_assignment, only: [:create, :update, :destroy]
+  before_action :set_assignment, only: [ :show, :update, :destroy ]
+  before_action :authorize_assignment, only: [ :create, :update, :destroy ]
 
   def index
     @assignments = policy_scope(@course.assignments).includes(:assessments, files_attachments: :blob)

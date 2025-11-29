@@ -82,8 +82,8 @@ class CoursesController < ApplicationController
   end
 
   def course_params
-    base_params = [:name, :course_code, :month, :year, :is_completed]
-    base_params += [:user_id, :organization_id] if current_user.global_admin?
+    base_params = [ :name, :course_code, :month, :year, :is_completed ]
+    base_params += [ :user_id, :organization_id ] if current_user.global_admin?
     params.permit(*base_params)
   end
 
@@ -101,7 +101,7 @@ class CoursesController < ApplicationController
       render_error(
         message: "Validation failed",
         status: :unprocessable_entity,
-        errors: ["Unknown semester '#{param}'. Valid options: #{SEMESTERS.keys.join(', ')}"]
+        errors: [ "Unknown semester '#{param}'. Valid options: #{SEMESTERS.keys.join(', ')}" ]
       )
       return nil
     end

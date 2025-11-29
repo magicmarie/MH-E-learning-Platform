@@ -51,7 +51,7 @@ class PasswordsController < ApplicationController
 
     begin
       @payload = JsonWebToken.decode(token)
-      return render_error("Token expired", :unauthorized) if @payload.blank?
+      render_error("Token expired", :unauthorized) if @payload.blank?
     rescue JWT::ExpiredSignature
       render_error("Token has expired", :unauthorized)
     rescue JWT::DecodeError

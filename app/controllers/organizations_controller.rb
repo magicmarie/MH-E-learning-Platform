@@ -4,9 +4,9 @@ class OrganizationsController < ApplicationController
   include Authenticatable
   include Pundit::Authorization
 
-  before_action :authorize_request, only: [:show, :update]
-  before_action :set_organization, only: [:show, :update]
-  before_action :authorize_organization, only: [:show, :update]
+  before_action :authorize_request, only: [ :show, :update ]
+  before_action :set_organization, only: [ :show, :update ]
+  before_action :authorize_organization, only: [ :show, :update ]
 
   def index
     authorize Organization
@@ -30,7 +30,7 @@ class OrganizationsController < ApplicationController
     query = params[:q].to_s.strip.downcase
 
     if query.length < 3
-      return render json: { errors: ["Query too short"] }, status: :bad_request
+      return render json: { errors: [ "Query too short" ] }, status: :bad_request
     end
 
     matches = policy_scope(Organization)
@@ -45,7 +45,7 @@ class OrganizationsController < ApplicationController
 
   def set_organization
     @organization = current_user&.organization
-    render json: { errors: ["Organization not found"] }, status: :not_found unless @organization
+    render json: { errors: [ "Organization not found" ] }, status: :not_found unless @organization
   end
 
   def authorize_organization

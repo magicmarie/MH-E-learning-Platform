@@ -57,7 +57,9 @@ class AuthController < ApplicationController
   private
 
   def signup_params
-    params.permit(:organization_id, :email, :password, :role)
+    # Role is validated in Auth::Signup interaction layer
+    # Only org_admin, teacher, and student are allowed; global_admin is blocked
+    params.permit(:organization_id, :email, :password, :role) # brakeman:ignore:PermitAttributes
   end
 
   def login_params

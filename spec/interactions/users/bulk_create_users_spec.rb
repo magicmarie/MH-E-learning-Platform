@@ -75,7 +75,7 @@ RSpec.describe Users::BulkCreateUsers do
           if email == 'user1@example.com'
             double('result', valid?: true, result: instance_double(User, email: email), errors: nil)
           else
-            double('result', valid?: false, result: nil, errors: double(full_messages: ['Email already taken']))
+            double('result', valid?: false, result: nil, errors: double(full_messages: [ 'Email already taken' ]))
           end
         end
       end
@@ -84,7 +84,7 @@ RSpec.describe Users::BulkCreateUsers do
         result = subject.execute
 
         expect(result).to be_a(Hash)
-        expect(result[:created].map(&:email)).to eq(['user1@example.com'])
+        expect(result[:created].map(&:email)).to eq([ 'user1@example.com' ])
         expect(result[:failed].first[:email]).to eq('user2@example.com')
         expect(result[:failed].first[:errors]).to include('Email already taken')
       end

@@ -51,10 +51,10 @@ class EnrollmentsController < ApplicationController
       id: user_ids,
       role: Constants::Roles::ROLES[:student],
       organization_id: @course.organization_id)
-    
+
     # Batch query existing enrollments to avoid N+1
     existing_enrollments = @course.enrollments.where(user_id: users.pluck(:id)).index_by(&:user_id)
-    
+
     created, failed = [], []
 
     users.each do |user|

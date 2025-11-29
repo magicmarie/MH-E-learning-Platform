@@ -35,18 +35,18 @@ module ErrorHandler
     render_error(
       message: "Resource not found",
       status: :not_found,
-      errors: [exception.message]
+      errors: [ exception.message ]
     )
   end
 
   def handle_validation_error(exception)
     errors = if exception.respond_to?(:record)
                exception.record.errors.full_messages
-             elsif exception.respond_to?(:errors)
+    elsif exception.respond_to?(:errors)
                exception.errors
-             else
-               [exception.message]
-             end
+    else
+               [ exception.message ]
+    end
 
     render_error(
       message: "Validation failed",

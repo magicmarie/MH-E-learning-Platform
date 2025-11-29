@@ -4,8 +4,8 @@ class StudentsController < ApplicationController
   include Authenticatable
   include Pundit::Authorization
 
-  before_action :set_student, only: [:show]
-  before_action :set_course, only: [:enrolled, :unenrolled]
+  before_action :set_student, only: [ :show ]
+  before_action :set_course, only: [ :enrolled, :unenrolled ]
 
   def index
     students = students_in_org.includes(enrollments: :course)

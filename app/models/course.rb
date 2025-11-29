@@ -35,7 +35,7 @@ class Course < ApplicationRecord
   #
   # @return [Hash] Assignment type names as keys, counts as values
   def assignment_type_counts
-    zero_counts = ASSIGNMENT_TYPE_NAMES.values.map { |type| [type.to_s, 0] }.to_h
+    zero_counts = ASSIGNMENT_TYPE_NAMES.values.map { |type| [ type.to_s, 0 ] }.to_h
     raw_counts = assignments.group(:assignment_type).count
       .transform_keys { |int_key| ASSIGNMENT_TYPE_NAMES[int_key].to_s }
     zero_counts.merge(raw_counts)

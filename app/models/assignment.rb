@@ -42,7 +42,7 @@ class Assignment < ApplicationRecord
   def create_assessments_for_enrollments
     enrollment_ids = course.enrollments.pluck(:id)
     timestamp = Time.current
-    
+
     assessment_records = enrollment_ids.map do |enrollment_id|
       {
         enrollment_id: enrollment_id,
@@ -54,7 +54,7 @@ class Assignment < ApplicationRecord
     end
 
     Assessment.insert_all(assessment_records) if assessment_records.any?
-    
+
     # Update counter cache manually since insert_all bypasses callbacks
     update_column(:assessments_count, assessments.count)
   end

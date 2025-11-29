@@ -58,11 +58,11 @@ module Users
     private
 
     def allowed_roles
-      [ROLES[:teacher], ROLES[:student]]
+      [ ROLES[:teacher], ROLES[:student] ]
     end
 
     def disallowed_admin_creation?(role_int)
-      [ROLES[:global_admin], ROLES[:org_admin]].include?(role_int)
+      [ ROLES[:global_admin], ROLES[:org_admin] ].include?(role_int)
     end
 
     def send_welcome_email(user, temp_password)

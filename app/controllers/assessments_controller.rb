@@ -3,7 +3,7 @@
 class AssessmentsController < ApplicationController
   include Authenticatable
 
-  before_action :set_assessment, only: [:show, :update]
+  before_action :set_assessment, only: [ :show, :update ]
   before_action :authorize_assessment
 
   def index

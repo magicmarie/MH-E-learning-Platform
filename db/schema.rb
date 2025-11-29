@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_20_212346) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_17_193245) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -62,6 +62,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_20_212346) do
     t.bigint "course_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "assessments_count", default: 0, null: false
+    t.integer "submissions_count", default: 0, null: false
+    t.integer "assessed_count", default: 0, null: false
     t.index ["course_id"], name: "index_assignments_on_course_id"
     t.index ["title", "course_id"], name: "index_unique_assignment_per_course", unique: true
   end
@@ -77,6 +80,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_20_212346) do
     t.bigint "organization_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "enrollments_count", default: 0, null: false
+    t.integer "assignments_count", default: 0, null: false
     t.index ["name", "course_code", "semester", "year", "month", "organization_id"], name: "index_unique_course_details", unique: true
     t.index ["organization_id"], name: "index_courses_on_organization_id"
     t.index ["user_id"], name: "index_courses_on_user_id"
@@ -89,6 +94,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_20_212346) do
     t.string "grade"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "total_score", precision: 10, scale: 2, default: "0.0", null: false
     t.index ["course_id"], name: "index_enrollments_on_course_id"
     t.index ["user_id", "course_id"], name: "index_enrollments_on_user_id_and_course_id", unique: true
     t.index ["user_id"], name: "index_enrollments_on_user_id"

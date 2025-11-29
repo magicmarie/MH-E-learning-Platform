@@ -9,7 +9,7 @@ class EnrollmentsController < ApplicationController
   before_action :authorize_enrollment, only: [ :show, :update, :destroy ]
 
   def index
-    @enrollments = policy_scope(@course.enrollments)
+    @enrollments = policy_scope(@course.enrollments).includes(:user, :assessments)
     render json: @enrollments
   end
 
@@ -51,10 +51,14 @@ class EnrollmentsController < ApplicationController
       id: user_ids,
       role: Constants::Roles::ROLES[:student],
       organization_id: @course.organization_id)
+    
+    # Batch query existing enrollments to avoid N+1
+    existing_enrollments = @course.enrollments.where(user_id: users.pluck(:id)).index_by(&:user_id)
+    
     created, failed = [], []
 
-    users.find_each do |user|
-      enrollment = Enrollment.find_or_initialize_by(user: user, course: @course)
+    users.each do |user|
+      enrollment = existing_enrollments[user.id] || @course.enrollments.new(user: user)
       enrollment.status = status if status.present?
 
       if enrollment.save
@@ -77,7 +81,7 @@ class EnrollmentsController < ApplicationController
   end
 
   def set_enrollment
-    @enrollment = @course.enrollments.find(params[:id])
+    @enrollment = @course.enrollments.includes(:user, :assessments).find(params[:id])
   end
 
   def authorize_enrollment

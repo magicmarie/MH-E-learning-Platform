@@ -39,16 +39,16 @@ RSpec.describe JsonWebToken do
         described_class.encode(payload, 1.hour.ago)
       end
 
-      it 'returns nil' do
-        expect(described_class.decode(expired_token)).to be_nil
+      it 'raises TokenExpiredError' do
+        expect { described_class.decode(expired_token) }.to raise_error(::Errors::TokenExpiredError)
       end
     end
 
     context 'with an invalid token' do
       let(:invalid_token) { 'invalid.token.here' }
 
-      it 'returns nil' do
-        expect(described_class.decode(invalid_token)).to be_nil
+      it 'raises TokenInvalidError' do
+        expect { described_class.decode(invalid_token) }.to raise_error(::Errors::TokenInvalidError)
       end
     end
   end

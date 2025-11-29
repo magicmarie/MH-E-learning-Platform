@@ -1,15 +1,31 @@
 # frozen_string_literal: true
 
 module Users
+  # Creates a new user within an organization
+  #
+  # This interaction:
+  # - Validates the incoming role is permitted
+  # - Prevents org admins from creating other admins
+  # - Generates a secure temporary password
+  # - Sends a welcome email with password reset link
+  #
+  # @example
+  #   result = Users::CreateUser.run(
+  #     current_user: admin,
+  #     email: 'teacher@school.com',
+  #     incoming_role: :teacher
+  #   )
   class CreateUser < ActiveInteraction::Base
+    include Constants::Roles
+
     object :current_user, class: User
     string :email
     symbol :incoming_role
 
-    validates :incoming_role, inclusion: { in: Constants::Roles::ROLES.keys }
+    validates :incoming_role, inclusion: { in: ROLES.keys }
 
     def execute
-      role_int = Constants::Roles::ROLES[incoming_role]
+      role_int = ROLES[incoming_role]
 
       if disallowed_admin_creation?(role_int)
         errors.add(:base, "Org admins cannot create '#{incoming_role}' users")
@@ -21,7 +37,7 @@ module Users
         return nil
       end
 
-      temp_password = SecureRandom.alphanumeric(8)
+      temp_password = SecureRandom.alphanumeric(AuthConfig::TEMP_PASSWORD_LENGTH)
 
       user = current_user.organization.users.new(
         email: email,
@@ -42,18 +58,15 @@ module Users
     private
 
     def allowed_roles
-      [
-        Constants::Roles::ROLES[:teacher],
-        Constants::Roles::ROLES[:student]
-      ]
+      [ROLES[:teacher], ROLES[:student]]
     end
 
     def disallowed_admin_creation?(role_int)
-      role_int == Constants::Roles::ROLES[:global_admin] || role_int == Constants::Roles::ROLES[:org_admin]
+      [ROLES[:global_admin], ROLES[:org_admin]].include?(role_int)
     end
 
     def send_welcome_email(user, temp_password)
-      token = JsonWebToken.encode({ user_id: user.id }, 15.minutes.from_now)
+      token = JsonWebToken.encode({ user_id: user.id }, AuthConfig::WELCOME_TOKEN_EXPIRY.from_now)
       reset_url = "#{Rails.application.routes.url_helpers.root_url}reset_password?token=#{token}"
 
       UserMailer.welcome_user(user, temp_password, reset_url).deliver_now

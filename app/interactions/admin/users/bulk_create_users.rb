@@ -35,7 +35,6 @@ module Admin
 
           user = organization.users.new(
             email: user_data[:email],
-            name: user_data[:name],
             role: role_int,
             password: temp_password,
             password_confirmation: temp_password

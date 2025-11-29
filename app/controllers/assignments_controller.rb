@@ -9,7 +9,7 @@ class AssignmentsController < ApplicationController
   before_action :authorize_assignment, only: [:create, :update, :destroy]
 
   def index
-    @assignments = policy_scope(@course.assignments)
+    @assignments = policy_scope(@course.assignments).includes(:assessments, files_attachments: :blob)
     render json: @assignments
   end
 
@@ -48,7 +48,7 @@ class AssignmentsController < ApplicationController
   end
 
   def set_assignment
-    @assignment = @course.assignments.find(params[:id])
+    @assignment = @course.assignments.includes(:assessments, files_attachments: :blob).find(params[:id])
   end
 
   def authorize_assignment

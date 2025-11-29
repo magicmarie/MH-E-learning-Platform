@@ -1,16 +1,6 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::API
-include Pundit::Authorization
-  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
-
-  rescue_from Pundit::NotDefinedError do
-    render json: { error: "Authorization policy not found" }, status: :internal_server_error
-  end
-
-  private
-
-  def user_not_authorized
-    render json: { error: "Access denied" }, status: :forbidden
-  end
+  include Pundit::Authorization
+  include ErrorHandler
 end

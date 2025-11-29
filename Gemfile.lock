@@ -111,6 +111,9 @@ GEM
     brakeman (7.1.0)
       racc
     builder (3.3.0)
+    bullet (8.1.0)
+      activesupport (>= 3.0.0)
+      uniform_notifier (~> 1.11)
     case_transform (0.2)
       activesupport
     childprocess (5.1.0)
@@ -403,6 +406,7 @@ GEM
     unicode-display_width (3.1.4)
       unicode-emoji (~> 4.0, >= 4.0.4)
     unicode-emoji (4.0.4)
+    uniform_notifier (1.18.0)
     uri (1.0.3)
     useragent (0.16.11)
     websocket-driver (0.8.0)
@@ -429,6 +433,7 @@ DEPENDENCIES
   bcrypt (~> 3.1.7)
   bootsnap
   brakeman
+  bullet
   csv
   database_cleaner-active_record
   debug
@@ -459,4 +464,4 @@ DEPENDENCIES
   tzinfo-data
 
 BUNDLED WITH
-   2.6.6
+   2.7.2

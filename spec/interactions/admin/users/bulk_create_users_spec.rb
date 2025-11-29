@@ -114,7 +114,7 @@ RSpec.describe Admin::Users::BulkCreateUsers do
         expect(result[:created].first.email).to eq("user1@example.com")
 
         expect(result[:failed].size).to eq(1)
-        expect(result[:failed].first[:email]).to eq("")
+        expect(result[:failed].first[:email]).to be_nil
         expect(result[:failed].first[:errors]).to include("Email can't be blank")
       end
     end

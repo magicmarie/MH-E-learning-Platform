@@ -1,11 +1,22 @@
 # frozen_string_literal: true
 
+# Handles user management operations for organization admins and global admins
+#
+# This controller provides endpoints for:
+# - Creating individual users
+# - Bulk creating users from CSV files
+# - User activation/deactivation
 class UsersController < ApplicationController
   require "csv"
 
   include Authenticatable
   include UserManagement
 
+  # POST /users
+  # Creates a new user within the current user's organization
+  #
+  # @param email [String] User's email address
+  # @param role [Symbol] User role (:teacher, :student)
   def create
     user = current_user.organization.users.new(email: params[:email])
     authorize user
